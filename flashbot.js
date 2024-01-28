@@ -49,13 +49,23 @@ const main = async () => {
   const iface = new utils.Interface(abi)
 
 
-  async function transferFee() {
-    let tx = await owner.populateTransaction({
-      to: korban.address,
-      value: utils.parseEther("0")
-    })
+  async function transferFee(ind, val) {
+    if (ind) {
+      let tx = await owner.populateTransaction({
+        to: korban.address,
+        value: utils.parseEther(val)
+      })
 
-    return tx
+      return tx
+
+    } else {
+      let tx = await owner.populateTransaction({
+        to: korban.address,
+        value: utils.parseEther("0")
+      })
+
+      return tx
+    }
   }
   async function claim() {
     let tx = await korban.populateTransaction({
@@ -111,7 +121,10 @@ const main = async () => {
     sum += fee[i].value
   }
 
+  let feeToSent = fee[0].value + fee[1].value + fee[2].value
 
+  const update = await transferFee(true, feeToSent)
+  fee[0] = update
 
   console.log(`\n######## DETAIL TOTAL FEE ###### \n`)
   fee.map((v) => {
@@ -166,7 +179,7 @@ const main = async () => {
           `Transaksi Sukses!!, Transaksi di eksekusi di Block: ${targetBlockNumber}`
         )
         bundleSubmission.bundleTransactions.map((asd) => {
-          console.log(`Tx Hash: \nhttps://goerli.etherscan.io/tx/${asd.hash}`)
+          console.log(`Tx Hash: \nhttps://etherscan.io/tx/${asd.hash}`)
         })
         exit(0)
       } else if (
